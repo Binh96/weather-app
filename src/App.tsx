@@ -1,41 +1,108 @@
+import { useState } from 'react';
 import './App.css'
+import type { WeatherData } from './interface/weather.i';
+const API_KEY = import.meta.env.VITE_API_KEY;
+const WEATHER_URL = import.meta.env.VITE_WEATHER_URL;
+const FORECAST_URL = import.meta.env.VITE_FORECAST_URL;
 
 function App() {
+  const [searchInput, setSearchInput] = useState("");
+  const [weatherData, setWeatherData] = useState(null as WeatherData | null);
+  const [forecast, setForecast] = useState([] as WeatherData[]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const city: string = event.target.value;
+    setSearchInput(city);
+  }
+
+  function handleSearchWeather(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    handleCallApiforecast(searchInput);
+  }
+
+  async function handleCallApiforecast(information: string) {
+    const getWeatherUrl = WEATHER_URL.replace("{city_name}", information).replace("{VITE_API_KEY}", API_KEY);
+    const getForecastUrl = FORECAST_URL.replace("{city_name}", information).replace("{VITE_API_KEY}", API_KEY);
+
+    try {
+      setLoading(true);
+      const weatherResponse = await fetch(getWeatherUrl);
+      const foreCastReposnse = await fetch(getForecastUrl);
+      const data = await weatherResponse.json();
+      const forecastData = await foreCastReposnse.json();
+
+      if (data.cod === "404" || forecastData.cod === "404") {
+        setError("Forecast data not found");
+        setWeatherData(null);
+        setForecast([]);
+        return;
+      }
+      const formatForecast = forecastData.list.filter((reading: WeatherData, index: number) => index % 8 === 0);
+
+      setWeatherData(data);
+      setForecast(formatForecast);
+    } catch {
+      setError("Error fetching weather data");
+    } finally {
+      setLoading(false);
+      setSearchInput("");
+    }
+  }
 
   return (
-    <div className='wrapper'>
-      <div className="header">
-        <h1 className="city">London</h1>
-        <p className="temperature">60°F</p>
-        <p className="condition">Cloudy</p>
-      </div>
-      <div className="weather-details">
-        <div>
-          <p>Humidity</p>
-          <p> 60%</p>
-        </div>
-        <div>
-          <p>Wind Speed</p>
-          <p>7 mph</p>
-        </div>
-      </div>
-      <div className="forecast">
-        <h2 className="forecast-header">5-Day Forecast</h2>
-        <div className="forecast-days">
-          <div className="forecast-day">
-            <p>Monday</p>
-            <p>Cloudy</p>
-            <p>12°F</p>
+    <div className="wrapper">
+      <form className="form" onSubmit={(e) => {handleSearchWeather(e)}}>
+        <input type="text" className="search-input" placeholder='Enter city name' value={searchInput} onChange={handleInputChange}/>
+        <button className="search-btn" type='submit'>Search</button>
+      </form>
+      {loading && <div>Loading...</div>}
+      {error && <div>{error}</div>}
+      {weatherData && weatherData.main &&(
+        <>
+          <div className="header">
+            <h1 className="city">{weatherData.name}</h1>
+            <p className="temperature">{weatherData.main.temp}°F</p>
+            <p className="condition">{weatherData.weather[0].main}</p>
           </div>
-          <div className="forecast-day">
-            <p>Monday</p>
-            <p>Cloudy</p>
-            <p>12°F</p>
+          <div className="weather-details">
+            <div >
+              <p >Humidity</p>
+              <p style={{fontWeight:"bold"}}>{Math.round(weatherData.main.humidity)}%</p>
+            </div>
+            <div>
+              <p>Wind Speed</p>
+              <p style={{fontWeight:"bold"}}>{Math.round(weatherData.wind.speed)} mph</p>
+            </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
+      {forecast.length > 0 && (
+        <>
+          <div className="forecast">
+            <h2 className="forecast-header">5-Day Forecast</h2>
+            <div className="forecast-days">
+              {forecast.map((day, index) => (
+                <div key={index} className="forecast-day">
+                  <p>
+                    {new Date(day.dt * 1000).toLocaleDateString("en-US", {
+                      weekday: "short",
+                    })}
+                  </p>
+                  <img
+                    src={`http://openweathermap.org/img/wn/${day.weather[0].icon}.png`}
+                    alt={day.weather[0].description}
+                  />
+                  <p>{Math.round(day.main.temp)}°F</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
 
-export default App
+export default App;
