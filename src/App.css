@@ -8,6 +8,11 @@ body {
   font-family: Arial, sans-serif;
 }
 
+.app-title {
+  font-family: 'Roboto', sans-serif;
+  text-align: center;
+}
+
 .wrapper {
   background: rgba(255, 255, 255, 0.2);
   border-radius: 1.5rem;
@@ -20,6 +25,7 @@ body {
   font-size: 2.5rem;
   font-weight: bold;
 }
+
 .temperature {
   font-size: 3.5rem;
   font-weight: bold;
