@@ -24,3 +24,9 @@ jobs:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
           VITE_WEATHER_URL: ${{ secrets.VITE_WEATHER_URL }}
           VITE_FORECAST_URL: ${{ secrets.VITE_FORECAST_URL }}
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
