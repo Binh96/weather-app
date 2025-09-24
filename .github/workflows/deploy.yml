@@ -21,7 +21,7 @@ jobs:
       - name: Build project
         run: npm run build
         env: 
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_API_KEY: ${{ secrets.VITE_API_KEY }}
           VITE_WEATHER_URL: ${{ secrets.VITE_WEATHER_URL }}
           VITE_FORECAST_URL: ${{ secrets.VITE_FORECAST_URL }}
 
