@@ -40,7 +40,7 @@ function App() {
         setForecast([]);
         return;
       }
-      const formatForecast = forecastData.list.filter((reading: WeatherData, index: number) => index % 8 === 0);
+      const formatForecast = forecastData.list.filter((_reading: WeatherData, index: number) => index % 8 === 0);
 
       setWeatherData(data);
       setForecast(formatForecast);
