@@ -14,7 +14,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-          
+
       - name: Install dependencies
         run: npm install
 
@@ -22,3 +22,5 @@ jobs:
         run: npm run build
         env: 
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_WEATHER_URL: ${{ secrets.VITE_WEATHER_URL }}
+          VITE_FORECAST_URL: ${{ secrets.VITE_FORECAST_URL }}
